@@ -5,6 +5,7 @@ setup(
     version='0.1',
     description='Tools for working with the GameCredits cryptocurrency',
     url='https://github.com/gamecredits-project/python-gamecredits',
+    download_url='https://github.com/gamecredits-project/python-gamecredits/archive/0.1.tar.gz',
     author='Nikola Divic',
     author_email='divicnikola@gmail.com',
     license='MIT',
@@ -12,7 +13,6 @@ setup(
     zip_safe=False,
     install_requires=[
         'pybitcointools',
-        'binascii',
         'simplejson',
         'python-bitcoinrpc'
     ],
