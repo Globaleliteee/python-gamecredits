@@ -1,26 +1,21 @@
 class Block(object):
     def __init__(self, **kwargs):
+        # REQUIRED ARGUMENTS
         # Size of this block in bytes
-        self.size = kwargs.get('size')
+        self.size = kwargs['size']
 
         # Block header
-        header = kwargs.get('header')
+        header = kwargs['header']
 
-        # Unpack the header - shorthand for writing bunch of assignments liked
-        # self.hash = header.hash
-        if header:
-            for (key, val) in header.__dict__.iteritems():
-                setattr(self, key, val)
+        # Unpack the header
+        for (key, val) in header.__dict__.iteritems():
+            setattr(self, key, val)
 
         # List of block transactions
-        self.tx = kwargs.get('tx')
+        self.tx = kwargs['tx']
 
+        # OPTIONAL ARGUMENTS
         # Information about the blocks position in a dat file:
-        # {
-        #  "index": <index of dat file>
-        #  "start": <block start byte>
-        #  "end": <block end byte>
-        # }
         self.dat = kwargs.get('dat')
 
         # Hash of the next block in the chain
@@ -41,57 +36,60 @@ class Block(object):
         self.total = kwargs.get('total')
 
     def __eq__(self, other):
-        """Override the default Equals behavior"""
         if isinstance(other, self.__class__):
-            return self.hash == other.hash and self.previousblockhash == other.previousblockhash \
-                and self.height == other.height
+            return self.hash == other.hash and self.height == other.height
         return False
 
     def __ne__(self, other):
-        """Define a non-equality test"""
         return not self.__eq__(other)
+
+    def __str__(self):
+        return "<gamecredits.entities.Block: hash=%s, height=%s>" % (self.hash, self.height)
+
+    def __repr__(self):
+        return "<gamecredits.entities.Block: hash=%s, height=%s>" % (self.hash, self.height)
 
 
 class BlockHeader(object):
     def __init__(self, **kwargs):
         # Block hash (unique identifier)
-        self.hash = kwargs.get('hash')
+        self.hash = kwargs['hash']
 
         # A version number to track software/protocol upgrades
-        self.version = kwargs.get('version')
+        self.version = kwargs['version']
 
         # A reference to the hash of the previous (parent) block in the chain
-        self.previousblockhash = kwargs.get('previousblockhash')
+        self.previousblockhash = kwargs['previousblockhash']
 
         # A hash of the root of the merkle tree of this blocks ParsedTransactions
-        self.merkleroot = kwargs.get('merkleroot')
+        self.merkleroot = kwargs['merkleroot']
 
         # The approximate creation time of this block (seconds from Unix Epoch)
-        self.time = kwargs.get('time')
+        self.time = kwargs['time']
 
         # Difficulty bits in hexadeximal format
         # This notation expresses the difficulty target as a coefficient/exponent format,
         # with the first two hexadecimal digits for the exponent
         # and the rest as the coefficient.
-        self.bits = kwargs.get('bits')
+        self.bits = kwargs['bits']
 
-        # Calculate target, formula from Mastering Bitcoin book
-        self.target = kwargs.get('target')
+        # Difficulty target
+        self.target = kwargs['target']
 
         # Difficulty is calculated as a ratio between the maximum allowed difficulty
         # and the blocks difficulty target
-        self.difficulty = kwargs.get('difficulty')
+        self.difficulty = kwargs['difficulty']
 
         # A counter used for the proof-of-work algorithm
-        self.nonce = kwargs.get('nonce')
+        self.nonce = kwargs['nonce']
 
         # Block work
-        self.work = kwargs.get('work')
+        self.work = kwargs['work']
 
     def __eq__(self, other):
         """Override the default Equals behavior"""
         if isinstance(other, self.__class__):
-            return self.hash == other.hash and self.previousblockhash == other.previousblockhash
+            return self.hash == other.hash
         return False
 
     def __ne__(self, other):
@@ -124,6 +122,20 @@ class Transaction(object):
         # Block mined time
         self.blocktime = kwargs.get('blocktime')
 
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.txid == other.txid
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __str__(self):
+        return "<gamecredits.entities.Transaction: txid=%s, blockhash=%s>" % (self.txid, self.blockhash)
+
+    def __repr__(self):
+        return "<gamecredits.entities.Transaction: txid=%s, blockhash=%s>" % (self.txid, self.blockhash)
+
 
 class Vin(object):
     def __init__(self, **kwargs):
@@ -144,6 +156,24 @@ class Vin(object):
 
         # Coinbase hex for generation transactions
         self.coinbase = kwargs.get('coinbase')
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.txid == other.txid and self.prev_txid == other.prev_txid \
+                and other.vout_index == self.vout_index and other.hex == self.hex \
+                and other.sequence == self.sequence and other.coinbase == self.coinbase
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __str__(self):
+        return "<gamecredits.entities.Vin: txid=%s, prev_txid=%s, vout_index=%s>" \
+            % (self.txid, self.prev_txid, self.vout_index)
+
+    def __repr__(self):
+        return "<gamecredits.entities.Vin: txid=%s, prev_txid=%s, vout_index=%s" \
+            % (self.txid, self.prev_txid, self.vout_index)
 
 
 class Vout(object):

@@ -9,5 +9,13 @@ setup(
     author_email='divicnikola@gmail.com',
     license='MIT',
     packages=['gamecredits'],
-    zip_safe=False
+    zip_safe=False,
+    install_requires=[
+        'pybitcointools',
+        'binascii',
+        'simplejson',
+        'python-bitcoinrpc'
+    ],
+    keywords=['gamecredits', 'cryptocurrency', 'bitcoin'],
+    classifiers=[]
 )

@@ -5,6 +5,7 @@ import enum
 from pybitcointools import bin_to_b58check, pubkey_to_address
 
 from entities import Block, BlockHeader, Transaction, Vin, Vout
+from helpers import calculate_target, calculate_work
 
 import constants
 
@@ -98,7 +99,7 @@ class BlockFactory(object):
         txcount = varint(stream)
 
         try:
-            # First ParsedTransaction in a block is a "coinbase" transction
+            # First ParsedTransaction in a block is a "coinbase" transaction
             # that transfers newly generated coins to a miner
             # and has a slightly different input format
             tx = [TransactionFactory.from_stream(stream, header.hash, header.time, coinbase=True)]
@@ -114,38 +115,43 @@ class BlockFactory(object):
 
         dat["end"] = stream.tell()
 
-        # Create the block
-        return {
-            "block": Block(
-                size=size,
-                header=header,
-                tx=[tr.txid for tr in tx],
-                dat=dat,
-                total=total
-            ),
-            "transactions": tx
-        }
+        return Block(
+            size=size,
+            header=header,
+            tx=tx,
+            dat=dat,
+            total=total
+        )
 
     @staticmethod
-    def from_rpc(rpc_block):
+    def from_rpc(rpc_block, rpc_tx):
+        bits = '0x' + rpc_block['bits']
+        target = calculate_target(bits)
+        work = calculate_work(target)
+        tx = [TransactionFactory.from_rpc(tr) for tr in rpc_tx]
+        total = sum([tr.total for tr in tx])
+
         header = BlockHeader(
             hash=rpc_block['hash'],
             version=rpc_block['version'],
             previousblockhash=rpc_block['previousblockhash'],
             merkleroot=rpc_block['merkleroot'],
             time=rpc_block['time'],
-            bits='0x' + rpc_block['bits'],  # We use 0x repr for hex strings
+            bits=bits,  # We use 0x repr for hex strings
             difficulty=rpc_block['difficulty'],
             nonce=rpc_block['nonce'],
+            target=target,
+            work=work
         )
 
         return Block(
             size=rpc_block['size'],
             header=header,
-            tx=rpc_block['tx'],
+            tx=tx,
             nextblockhash=rpc_block.get('nextblockhash'),
             height=rpc_block['height'],
             chainwork=int(rpc_block['chainwork'], 16),
+            total=total
         )
 
 
@@ -223,7 +229,9 @@ class TransactionFactory(object):
             vout=vout,
             locktime=rpc_tr['locktime'],
             txid=rpc_tr['txid'],
-            total=total
+            total=total,
+            blockhash=rpc_tr['blockhash'],
+            blocktime=rpc_tr['blocktime']
         )
 
 
@@ -268,7 +276,7 @@ class VinFactory(object):
         else:
             return Vin(
                 coinbase=rpc_vin['coinbase'],
-                sequence=rpc_vin['sequence']
+                sequence=rpc_vin['sequence'],
             )
 
 
@@ -379,8 +387,8 @@ class VoutFactory(object):
             value=value,
             hex=script_hex,
             asm=asm,
-            addresses=addresses,
             type=script_type,
+            addresses=addresses,
             reqSigs=reqSigs
         )
 
@@ -392,5 +400,5 @@ class VoutFactory(object):
             asm=rpc_vout['scriptPubKey']['asm'],
             type=rpc_vout['scriptPubKey']['type'],
             addresses=rpc_vout['scriptPubKey'].get('addresses'),
-            reqSigs=rpc_vout['scriptPubKey'].get('reqSigs'),
+            reqSigs=rpc_vout['scriptPubKey'].get('reqSigs')
         )

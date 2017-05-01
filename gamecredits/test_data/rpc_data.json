@@ -1,0 +1,53 @@
+{
+    "block": {
+        "hash" : "dd7759a04bcbddec0afc7253cd9e87d9debfd85f3f6b1cc839265a0323784a65",
+        "confirmations" : 1632841,
+        "size" : 204,
+        "height" : 12345,
+        "version" : 2,
+        "merkleroot" : "81e3d3d60690604b55b59021eda48435bf96ee7fc81e95aef8376d28f5a799cc",
+        "tx" : [
+            "81e3d3d60690604b55b59021eda48435bf96ee7fc81e95aef8376d28f5a799cc"
+        ],
+        "time" : 1393090303,
+        "nonce" : 1104877312,
+        "bits" : "1d01f0b9",
+        "difficulty" : 0.51537028,
+        "chainwork" : "000000000000000000000000000000000000000000000000000001e5f70870de",
+        "previousblockhash" : "fd07d3ae5442d2fea637e21a9d9b1ad72c8e7fddcdb0c1fc1e03e51bc501a77a",
+        "nextblockhash" : "ca42def2b92eab281c5dba7a72b2d1b96142c8c7fab660135b7700920f1b3297"
+    },
+    "transactions": [
+        {
+            "hex" : "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff26023930062f503253482f0400df085308f0000135020000000d2f7374726174756d506f6f6c2f000000000100f2052a010000001976a914c6ee77faa962f97ac82c89285bb48b59d7c41b3888ac00000000",
+            "txid" : "81e3d3d60690604b55b59021eda48435bf96ee7fc81e95aef8376d28f5a799cc",
+            "version" : 1,
+            "locktime" : 0,
+            "vin" : [
+                {
+                    "coinbase" : "023930062f503253482f0400df085308f0000135020000000d2f7374726174756d506f6f6c2f",
+                    "sequence" : 0
+                }
+            ],
+            "vout" : [
+                {
+                    "value" : 50.00000000,
+                    "n" : 0,
+                    "scriptPubKey" : {
+                        "asm" : "OP_DUP OP_HASH160 c6ee77faa962f97ac82c89285bb48b59d7c41b38 OP_EQUALVERIFY OP_CHECKSIG",
+                        "hex" : "76a914c6ee77faa962f97ac82c89285bb48b59d7c41b3888ac",
+                        "reqSigs" : 1,
+                        "type" : "pubkeyhash",
+                        "addresses" : [
+                            "GbymtCjaPUWzJ8RBfV1nbGf8Ng7bRmRLqj"
+                        ]
+                    }
+                }
+            ],
+            "blockhash" : "dd7759a04bcbddec0afc7253cd9e87d9debfd85f3f6b1cc839265a0323784a65",
+            "confirmations" : 1632852,
+            "time" : 1393090303,
+            "blocktime" : 1393090303
+        }
+    ]
+}
