@@ -178,12 +178,29 @@ class Vin(object):
 
 class Vout(object):
     def __init__(self, **kwargs):
+        # Amount transfered
         self.value = kwargs.get('value')
+
+        # Hexadecimal representation of the output script
         self.hex = kwargs.get('hex')
+
         self.asm = kwargs.get('asm')
+
+        # Output addresses
         self.addresses = kwargs.get('addresses')
+
+        # Output type
         self.type = kwargs.get('type')
+
+        # Num signatures required to unlock the output
         self.reqSigs = kwargs.get('reqSigs')
+
+        # Txid of the transaction containing this output
         self.txid = kwargs.get('txid')
+
+        # Index of this output in the transaction
         self.index = kwargs.get('index')
+
+        # Is this output spent?
+        self.spent = kwargs.get('spent')
 

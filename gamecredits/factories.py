@@ -389,7 +389,8 @@ class VoutFactory(object):
             asm=asm,
             type=script_type,
             addresses=addresses,
-            reqSigs=reqSigs
+            reqSigs=reqSigs,
+            spent=False
         )
 
     @staticmethod
@@ -400,5 +401,6 @@ class VoutFactory(object):
             asm=rpc_vout['scriptPubKey']['asm'],
             type=rpc_vout['scriptPubKey']['type'],
             addresses=rpc_vout['scriptPubKey'].get('addresses'),
-            reqSigs=rpc_vout['scriptPubKey'].get('reqSigs')
+            reqSigs=rpc_vout['scriptPubKey'].get('reqSigs'),
+            spent=False
         )
