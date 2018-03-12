@@ -18,6 +18,7 @@ class ScriptOperator(enum.Enum):
     OP_EQUAL = "87"
     OP_EQUALVERIFY = "88"
     OP_RETURN = "6a"
+    OP_CHECKMULTISIG = 'ae'
 
 
 class BlockFactory(object):
@@ -320,6 +321,16 @@ class VoutFactory(object):
                 "type": "scripthash",
                 "addresses": [address]
             }
+        elif script[-2:] == ScriptOperator.OP_CHECKMULTISIG.value:
+            # Multisignature script - https://en.bitcoin.it/wiki/Multisignature
+            (pubkeys, addresses, first_num, second_num) = VoutFactory.parse_multisig(script)
+            return {
+                "asm": "%s %s %s OP_CHECKMULTISIG" % (first_num[0], " ".join([VoutFactory.show_me(pubkey) for pubkey in pubkeys]), second_num[0]),
+                "reqSigs": 2,
+                "type": "multisig",
+                "addresses": addresses
+            }
+            print keys
         else:
             raise Exception("[PARSE_SCRIPT] Unknown script format: %s" % script)
 
@@ -361,6 +372,69 @@ class VoutFactory(object):
         address = bin_to_b58check(binascii.unhexlify(pubkey), constants.PAY_TO_SCRIPT_VERSION_PREFIX)
 
         return (pubkey, address)
+    
+    @staticmethod
+    def show_me(ele):
+        # Don't delete me, I'm useful, I'm used in list comprehensions
+        # for faster array iteration, because list comprehensions support
+        # only expressions
+        return ele
+
+    @staticmethod
+    def remove_chars(pubs):
+        # This is exclusively used for compressed public keys.
+        # Start needs to be changed according to len of public keys
+        # when uncopressed keys are implemented, start needs to be
+        # method parameter.
+        start = 66
+        for index in range(len(pubs)):
+            if index == start:
+                pubs = pubs[:index] + pubs[start+2:]                
+                start += 66
+        return pubs    
+
+    @staticmethod
+    def get_pubs(pubs_list):
+        # Returning all public keys as an array.
+        # 66 number needs to be changed as soon as uncompressed keys 
+        # are implemented
+        pubs = VoutFactory.remove_chars(pubs_list)
+        pubs = [pubs[i:i+66] for i in range(0, len(pubs), 66)]
+        return pubs
+
+    @staticmethod
+    def get_addr_from_pub(pubkey):
+        # Multisignature addresses have the same prefix as pay2pubkey addresses
+        return pubkey_to_address(pubkey, magicbyte=constants.PAY_TO_PUBKEY_VERSION_PREFIX)
+
+    @staticmethod
+    def parse_multisig(script):
+        # https://en.bitcoin.it/wiki/Script
+        # Numbers of public keys possible to insert into script 2-16
+        num_of_pubs = {
+            "82": 2, "83": 3, "84": 4, "85": 5,
+            "86": 6, "87": 7, "88": 8, "89": 9,
+            "90": 10, "91": 11, "92": 12, "93": 13, 
+            "94": 14, "95": 15, "96": 16
+        }
+
+        # Number of public keys found in multisig script
+        first_num = [VoutFactory.show_me(value) for key, value in num_of_pubs.iteritems() if int('0x'+script[:2], 16) == int(key)]
+        
+        # Number of public keys that have been envolved in multisignature transaction
+        second_num = [VoutFactory.show_me(value) for key, value in num_of_pubs.iteritems() if int('0x'+script[-4:-2], 16) == int(key)]
+
+        # Type of public key 02 is for compressed, 03 and 04 prefix is for uncompressed
+        # Fix this ASAP, because this currently only supports compressed keys
+        pubs = script[4:-4]
+        if script[4:6] == '02':
+            pubkeys = VoutFactory.get_pubs(pubs)
+ 
+        # Get addresses from public keys
+        addresses = [VoutFactory.get_addr_from_pub(pub) for pub in pubkeys]
+        return (pubkeys, addresses, first_num, second_num)
+
+
 
     @staticmethod
     def from_stream(stream):

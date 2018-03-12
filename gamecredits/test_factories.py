@@ -1,6 +1,5 @@
 import unittest
 import simplejson
-from factories import BlockFactory
 
 
 class BlockFactoryTestCase(unittest.TestCase):
