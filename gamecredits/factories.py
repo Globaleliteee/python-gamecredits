@@ -323,14 +323,13 @@ class VoutFactory(object):
             }
         elif script[-2:] == ScriptOperator.OP_CHECKMULTISIG.value:
             # Multisignature script - https://en.bitcoin.it/wiki/Multisignature
-            (pubkeys, addresses, first_num, second_num) = VoutFactory.parse_multisig(script)
+            (pubkeys, addresses, req_sigs, possible_sigs) = VoutFactory.parse_multisig(script)
             return {
-                "asm": "%s %s %s OP_CHECKMULTISIG" % (first_num[0], " ".join([VoutFactory.show_me(pubkey) for pubkey in pubkeys]), second_num[0]),
-                "reqSigs": 2,
+                "asm": "%s %s %s OP_CHECKMULTISIG" % (req_sigs[0], " ".join([pubkey for pubkey in pubkeys]), possible_sigs[0]),
+                "reqSigs": req_sigs[0],
                 "type": "multisig",
                 "addresses": addresses
             }
-            print keys
         else:
             raise Exception("[PARSE_SCRIPT] Unknown script format: %s" % script)
 
@@ -372,13 +371,6 @@ class VoutFactory(object):
         address = bin_to_b58check(binascii.unhexlify(pubkey), constants.PAY_TO_SCRIPT_VERSION_PREFIX)
 
         return (pubkey, address)
-    
-    @staticmethod
-    def show_me(ele):
-        # Don't delete me, I'm useful, I'm used in list comprehensions
-        # for faster array iteration, because list comprehensions support
-        # only expressions
-        return ele
 
     @staticmethod
     def remove_chars(pubs):
@@ -409,7 +401,7 @@ class VoutFactory(object):
 
     @staticmethod
     def parse_multisig(script):
-        # https://en.bitcoin.it/wiki/Script
+        # https://en.bitcoin.it/wiki/Script#Constants
         # Numbers of public keys possible to insert into script 2-16
         num_of_pubs = {
             "82": 2, "83": 3, "84": 4, "85": 5,
@@ -419,10 +411,10 @@ class VoutFactory(object):
         }
 
         # Number of public keys found in multisig script
-        first_num = [VoutFactory.show_me(value) for key, value in num_of_pubs.iteritems() if int('0x'+script[:2], 16) == int(key)]
+        req_sigs = [value for key, value in num_of_pubs.iteritems() if int('0x'+script[:2], 16) == int(key)]
         
         # Number of public keys that have been envolved in multisignature transaction
-        second_num = [VoutFactory.show_me(value) for key, value in num_of_pubs.iteritems() if int('0x'+script[-4:-2], 16) == int(key)]
+        possible_sigs = [value for key, value in num_of_pubs.iteritems() if int('0x'+script[-4:-2], 16) == int(key)]
 
         # Type of public key 02 is for compressed, 03 and 04 prefix is for uncompressed
         # Fix this ASAP, because this currently only supports compressed keys
@@ -432,7 +424,7 @@ class VoutFactory(object):
  
         # Get addresses from public keys
         addresses = [VoutFactory.get_addr_from_pub(pub) for pub in pubkeys]
-        return (pubkeys, addresses, first_num, second_num)
+        return (pubkeys, addresses, req_sigs, possible_sigs)
 
 
 
