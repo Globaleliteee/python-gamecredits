@@ -122,6 +122,9 @@ class Transaction(object):
         # Block mined time
         self.blocktime = kwargs.get('blocktime')
 
+        # Transaction main/side chain
+        self.main_chain = kwargs.get('main_chain')
+        
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.txid == other.txid
