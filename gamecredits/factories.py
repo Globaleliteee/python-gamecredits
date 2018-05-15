@@ -39,7 +39,7 @@ class BlockFactory(object):
         previousblockhash = hash32(stream)
 
         # A hash of the root of the merkle tree of this blocks ParsedTransactions
-        merkleroot = hash32(stream)[::-1]
+        merkleroot = hash32(stream)
 
         # The approximate creation time of this block (seconds from Unix Epoch)
         time = uint4(stream)
